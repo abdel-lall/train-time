@@ -15,7 +15,21 @@
 firebase.initializeApp(firebaseConfig);
 var database = firebase.database();
   
+database.ref().on("child_added", function(snapshot) {
+ 
+    var trainn = snapshot.val().trainn;
+    var des = snapshot.val().des;
+    var freqe = snapshot.val().freqe;
+    var firstdepart = snapshot.val().firstdepart;
+    var nimaway = snapshot.val().nimaway;
+    var nextrain = snapshot.val().nextrain;
 
+
+    $(".table").append("<tbody><tr><th scope= row >"+trainn+"</th><td>"+des+"</td><td>"+freqe+"</td><td>"+nextrain+"</td><td>"+nimaway+"</td></tr></tbody>");
+    
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
 
  
   
@@ -59,7 +73,7 @@ $("#submit").on("click",function(){
     var nerttr =next.format('h:mm');
     console.log(minaw);
     console.log(nerttr);
-    $(".table").append("<tbody><tr><th scope= row >"+trainname+"</th><td>"+destination+"</td><td>"+frequency+"</td><td>"+nerttr+"</td><td>"+minaw+"</td></tr></tbody>");
+    // $(".table").append("<tbody><tr><th scope= row >"+trainname+"</th><td>"+destination+"</td><td>"+frequency+"</td><td>"+nerttr+"</td><td>"+minaw+"</td></tr></tbody>");
     
     database.ref().push({
         trainn: trainname,
@@ -85,18 +99,3 @@ setInterval(function(){
  
 },1000)
 
-database.ref().on("child_added", function(snapshot) {
- 
-    var trainn = snapshot.val().trainn;
-    var des = snapshot.val().des;
-    var freqe = snapshot.val().freqe;
-    var firstdepart = snapshot.val().firstdepart;
-    var nimaway = snapshot.val().nimaway;
-    var nextrain = snapshot.val().nextrain;
-
-
-    $(".table").append("<tbody><tr><th scope= row >"+trainn+"</th><td>"+des+"</td><td>"+freqe+"</td><td>"+nextrain+"</td><td>"+nimaway+"</td></tr></tbody>");
-    
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
