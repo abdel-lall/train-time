@@ -87,13 +87,7 @@ database.ref().on("child_added", function(childSnapshot) {
     var key = childSnapshot.key;
 
     $(".table").append("<tbody><tr id= tr><th scope= row >"+childSnapshot.val().trainName +"</th><td>"+childSnapshot.val().destination+"</td><td>"+childSnapshot.val().frequency +"</td><td>"+moment(nextTrain).format("LT")+"</td><td>"+minToArrival+"</td><td class='text-center'><button class='arrival btn btn-danger btn-xs' data-key='" + key + "'>X</button></tr></tbody>");
-    // var newrow = $("<tr>");
-    // newrow.append($("<td>" + childSnapshot.val().trainName + "</td>"));
-    // newrow.append($("<td>" + childSnapshot.val().destination + "</td>"));
-    // newrow.append($("<td class='text-center'>" + childSnapshot.val().frequency + "</td>"));
-    // newrow.append($("<td class='text-center'>" + moment(nextTrain).format("LT") + "</td>"));
-    // newrow.append($("<td class='text-center'>" + minToArrival + "</td>"));
-    // newrow.append($("<td class='text-center'><button class='arrival btn btn-danger btn-xs' data-key='" + key + "'>X</button></td>"));
+  
 
     if (minToArrival < 6) {
         $("#tr").addClass("info");
