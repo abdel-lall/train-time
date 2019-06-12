@@ -23,38 +23,17 @@ var startTime = "";
 
 var frequency = 0;
 
-function time() {
-    var currentTime = moment().format('LT');
-    // $("#time").html(currentTime);
-    setTimeout(time, 1000);
-};
-
-$(".form-field").on("keyup", function() {
-    var trainFld = $("#trainname").val().trim();
-    var cityFld = $("#destination").val().trim();
-    var timeFld = $("#firsttraintime").val().trim();
-    var freqFld = $("#frequency").val().trim();
-
-    sessionStorage.setItem("train", trainFld);
-    sessionStorage.setItem("city", cityFld);
-    sessionStorage.setItem("time", timeFld);
-    sessionStorage.setItem("freq", freqFld);
-});
-
-$("#trainname").val(sessionStorage.getItem("train"));
-$("#destination").val(sessionStorage.getItem("city"));
-$("#firsttraintime").val(sessionStorage.getItem("time"));
-$("#frequency").val(sessionStorage.getItem("freq"));
 
 $("#submit").on("click", function(event) {
-    event.preventDefault();
 
+    event.preventDefault();
+    
     if ($("#trainname").val().trim() === "" ||
         $("#destination").val().trim() === "" ||
         $("#firsttraintime").val().trim() === "" ||
         $("#frequency").val().trim() === "") {
 
-        alert("Please fill in all details to add new train");
+        alert("fill in the blanks");
 
     } else {
 
@@ -72,8 +51,6 @@ $("#submit").on("click", function(event) {
             startTime: startTime,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
-
-        sessionStorage.clear();
     }
 
 });
@@ -89,9 +66,6 @@ database.ref().on("child_added", function(childSnapshot) {
     $(".table").append("<tbody><tr id= tr><th scope= row >"+childSnapshot.val().trainName +"</th><td>"+childSnapshot.val().destination+"</td><td>"+childSnapshot.val().frequency +"</td><td>"+moment(nextTrain).format("LT")+"</td><td>"+minToArrival+"</td><td class='text-center'><button class='arrival btn btn-danger btn-xs' data-key='" + key + "'>X</button></tr></tbody>");
   
 
-    if (minToArrival < 6) {
-        $("#tr").addClass("info");
-    }
 
     
 
@@ -103,7 +77,7 @@ $(document).on("click", ".arrival", function() {
     window.location.reload();
 });
 
-time();
+
 
 setInterval(function() {
     window.location.reload();
