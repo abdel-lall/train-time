@@ -14,80 +14,106 @@
 //   Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var database = firebase.database();
-  
-database.ref().on("child_added", function(snapshot) {
- 
-    var trainn = snapshot.val().trainn;
-    var des = snapshot.val().des;
-    var freqe = snapshot.val().freqe;
-    var firstdepart = snapshot.val().firstdepart;
-    var nimaway = snapshot.val().nimaway;
-    var nextrain = snapshot.val().nextrain;
 
+var trainName = "";
 
-    $(".table").append("<tbody><tr><th scope= row >"+trainn+"</th><td>"+des+"</td><td>"+freqe+"</td><td>"+nextrain+"</td><td>"+nimaway+"</td></tr></tbody>");
+var destination = "";
+
+var startTime = "";
+
+var frequency = 0;
+
+function time() {
+    var currentTime = moment().format('LT');
+    // $("#time").html(currentTime);
+    setTimeout(time, 1000);
+};
+
+$(".form-field").on("keyup", function() {
+    var trainFld = $("#trainname").val().trim();
+    var cityFld = $("#destination").val().trim();
+    var timeFld = $("#firsttraintime").val().trim();
+    var freqFld = $("#frequency").val().trim();
+
+    sessionStorage.setItem("train", trainFld);
+    sessionStorage.setItem("city", cityFld);
+    sessionStorage.setItem("time", timeFld);
+    sessionStorage.setItem("freq", freqFld);
+});
+
+$("#trainname").val(sessionStorage.getItem("train"));
+$("#destination").val(sessionStorage.getItem("city"));
+$("#firsttraintime").val(sessionStorage.getItem("time"));
+$("#frequency").val(sessionStorage.getItem("freq"));
+
+$("#submit").on("click", function(event) {
+    event.preventDefault();
+
+    if ($("#trainname").val().trim() === "" ||
+        $("#destination").val().trim() === "" ||
+        $("#firsttraintime").val().trim() === "" ||
+        $("#frequency").val().trim() === "") {
+
+        alert("Please fill in all details to add new train");
+
+    } else {
+
+        trainName = $("#trainname").val().trim();
+        destination = $("#destination").val().trim();
+        startTime = $("#firsttraintime").val().trim();
+        frequency = $("#frequency").val().trim();
+
+        $(".form-field").val("");
+
+        database.ref().push({
+            trainName: trainName,
+            destination: destination,
+            frequency: frequency,
+            startTime: startTime,
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        sessionStorage.clear();
+    }
+
+});
+
+database.ref().on("child_added", function(childSnapshot) {
+    var startTimeConverted = moment(childSnapshot.val().startTime, "HH:mm").subtract(1, "years");
+    var timeDiff = moment().diff(moment(startTimeConverted), "minutes");
+    var timeRemain = timeDiff % childSnapshot.val().frequency;
+    var minToArrival = childSnapshot.val().frequency - timeRemain;
+    var nextTrain = moment().add(minToArrival, "minutes");
+    var key = childSnapshot.key;
+
+    $(".table").append("<tbody><tr id= tr><th scope= row >"+childSnapshot.val().trainName +"</th><td>"+childSnapshot.val().destination+"</td><td>"+childSnapshot.val().frequency +"</td><td>"+moment(nextTrain).format("LT")+"</td><td>"+minToArrival+"</td><td class='text-center'><button class='arrival btn btn-danger btn-xs' data-key='" + key + "'>X</button></tr></tbody>");
+    // var newrow = $("<tr>");
+    // newrow.append($("<td>" + childSnapshot.val().trainName + "</td>"));
+    // newrow.append($("<td>" + childSnapshot.val().destination + "</td>"));
+    // newrow.append($("<td class='text-center'>" + childSnapshot.val().frequency + "</td>"));
+    // newrow.append($("<td class='text-center'>" + moment(nextTrain).format("LT") + "</td>"));
+    // newrow.append($("<td class='text-center'>" + minToArrival + "</td>"));
+    // newrow.append($("<td class='text-center'><button class='arrival btn btn-danger btn-xs' data-key='" + key + "'>X</button></td>"));
+
+    if (minToArrival < 6) {
+        $("#tr").addClass("info");
+    }
+
     
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
 
- 
-  
+});
 
+$(document).on("click", ".arrival", function() {
+    keyref = $(this).attr("data-key");
+    database.ref().child(keyref).remove();
+    window.location.reload();
+});
 
+time();
 
-
-$("#submit").on("click",function(){
-    var fr=0;
-    var freq=0;
-    var trainname =$("#trainname").val();
-    var destination =$("#destination").val();
-    var firsttraintime =$("#firsttraintime").val();
-    var frequency =$("#frequency").val();
-
-
- if (trainname == "" || destination == "" || firsttraintime == "" || frequency == ""){
-    console.log("empty");
- }else{
-   
-    var startTime = moment();
-    var next = moment(firsttraintime,'h:mm').add(frequency, 'minutes');
-    var minnexttr = (next.hour()*60)+next.minute();
-    var strtime = (startTime.hour()*60)+startTime.minute();
-    console.log(minnexttr);
-    console.log(strtime);
-    fr= parseInt(frequency);
-    freq=fr
-    
-        while(minnexttr < strtime){
-        freq=freq+fr
-        
-        next = moment(firsttraintime,'h:mm').add(freq.toString(), 'minutes')
-        minnexttr = (next.hour()*60)+next.minute();
-        strtime = (startTime.hour()*60)+startTime.minute();
-        console.log("yess");
-        }
-    var duration = moment.duration(next.diff(startTime));
-    var min = duration.asMinutes();
-    var minaw = Math.round(min);
-    var nerttr =next.format('h:mm');
-    console.log(minaw);
-    console.log(nerttr);
-    // $(".table").append("<tbody><tr><th scope= row >"+trainname+"</th><td>"+destination+"</td><td>"+frequency+"</td><td>"+nerttr+"</td><td>"+minaw+"</td></tr></tbody>");
-    
-    database.ref().push({
-        trainn: trainname,
-        des: destination,
-        freqe : frequency,
-        firstdepart :firsttraintime,
-        nimaway : minaw,
-        nextrain : nerttr,
-      });
- }
- 
-    
- 
-})
+setInterval(function() {
+    window.location.reload();
+}, 60000);
 
 
 
